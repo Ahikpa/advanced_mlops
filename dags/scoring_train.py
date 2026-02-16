@@ -3,7 +3,6 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import pandas as pd
 import xgboost as xgb
-import shap
 import mlflow
 import mlflow.xgboost
 from sklearn.model_selection import train_test_split

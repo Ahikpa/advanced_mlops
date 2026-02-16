@@ -4,7 +4,6 @@ import pickle
 import os
 import mlflow
 import mlflow.xgboost
-import numpy as np
 from fastapi import FastAPI, HTTPException
 from prometheus_fastapi_instrumentator import Instrumentator
 from schemas import CreditApplication

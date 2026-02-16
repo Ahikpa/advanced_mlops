@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 import unittest.mock as mock
 import os
@@ -29,7 +28,7 @@ def test_predict_without_model():
     """Verify that prediction fails gracefully if no model is loaded."""
     # We force the global 'model' to None for this test
     with mock.patch("main.model", None):
-        with mock.patch("main.load_latest_model") as mock_load:
+        with mock.patch("main.load_latest_model"):
             # Mocking load_latest_model to stay None
             response = client.post("/predict", json={
                 "Age": 33, "Sex": "male", "Job": 2, "Housing": "own",
