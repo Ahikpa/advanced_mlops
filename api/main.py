@@ -16,7 +16,9 @@ Instrumentator().instrument(app).expose(app)
 # Configuration
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000")
 EXPERIMENT_NAME = "credit_scoring_experiment"
-FEATURE_PATH = "/mlflow/model_features.pkl"
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000")
+EXPERIMENT_NAME = "credit_scoring_experiment"
+# FEATURE_PATH is no longer a static path, it will be downloaded from artifacts
 
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
@@ -28,14 +30,6 @@ feature_names = None
 def load_latest_model():
     global model, explainer, feature_names
     try:
-        # 1. Load feature names for alignment
-        if os.path.exists(FEATURE_PATH):
-            with open(FEATURE_PATH, "rb") as f:
-                feature_names = pickle.load(f)
-            print(f"Feature names loaded: {len(feature_names)} features.")
-        else:
-            print(f"Warning: {FEATURE_PATH} not found. Prediction might fail.")
-
         # 2. Try to load model from MLflow
         client = mlflow.tracking.MlflowClient()
         experiment = client.get_experiment_by_name(EXPERIMENT_NAME)
@@ -48,6 +42,16 @@ def load_latest_model():
             )
             if runs:
                 run_id = runs[0].info.run_id
+                
+                # Download feature names artifact
+                local_dir = "/tmp"
+                mlflow.artifacts.download_artifacts(run_id=run_id, artifact_path="model_features.pkl", dst_path=local_dir)
+                feature_path = os.path.join(local_dir, "model_features.pkl")
+                
+                with open(feature_path, "rb") as f:
+                    feature_names = pickle.load(f)
+                print(f"Feature names loaded from run {run_id}: {len(feature_names)} features.")
+
                 model_uri = f"runs:/{run_id}/model"
                 model = mlflow.xgboost.load_model(model_uri)
                 explainer = shap.TreeExplainer(model)

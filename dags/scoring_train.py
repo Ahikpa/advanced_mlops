@@ -14,7 +14,7 @@ import hashlib
 
 # Configuration
 MLFLOW_TRACKING_URI = "http://mlflow:5000"
-EXPERIMENT_NAME = "credit_scoring_experiment"
+EXPERIMENT_NAME = "credit_scoring_prod_s3"
 
 default_args = {
     'owner': 'airflow',
@@ -155,9 +155,13 @@ def train_model(**kwargs):
         mlflow.xgboost.log_model(model, "model")
         
         # Save fit attributes for SHAP
+        # Save fit attributes for SHAP
         # Saving feature names to ensure alignment during explanation
-        with open("/mlflow/model_features.pkl", "wb") as f:
+        # Save locally first, then log as artifact to S3
+        local_feature_path = "/tmp/model_features.pkl"
+        with open(local_feature_path, "wb") as f:
             pickle.dump(list(X_train.columns), f)
+        mlflow.log_artifact(local_feature_path)
         
         kwargs['ti'].xcom_push(key='model_run_id', value=mlflow.active_run().info.run_id)
 
