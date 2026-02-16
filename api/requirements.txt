@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+prometheus-fastapi-instrumentator
+xgboost
+shap
+scikit-learn
+pandas
+numpy
+pydantic
+requests
+msgspec
+exceptiongroup
+mlflow>=2.7.1

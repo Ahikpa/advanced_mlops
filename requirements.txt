@@ -1,0 +1,14 @@
+psycopg2-binary
+mlflow>=2.7.1
+scikit-learn
+pandas
+numpy
+xgboost
+shap
+fastapi
+uvicorn
+prometheus-fastapi-instrumentator
+requests
+pydantic
+great_expectations
+ucimlrepo
