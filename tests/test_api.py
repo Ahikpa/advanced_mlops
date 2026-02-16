@@ -18,11 +18,15 @@ def test_health_check():
 
 def test_reload_endpoint_mocked():
     """Verify that the /reload endpoint triggers correctly (with mocked model loading)."""
+    # We mock load_latest_model to simply return, but we also need to ensure
+    # the global 'model' variable is considered 'loaded' for the endpoint check
     with mock.patch("main.load_latest_model") as mock_load:
-        response = client.post("/reload")
-        assert response.status_code == 200
-        assert response.json()["status"] == "success"
-        mock_load.assert_called_once()
+        # Mocking the global model to be not None so the endpoint returns success
+        with mock.patch("main.model", "dummy_model"): 
+            response = client.post("/reload")
+            assert response.status_code == 200
+            assert response.json()["status"] == "success"
+            mock_load.assert_called_once()
 
 def test_predict_without_model():
     """Verify that prediction fails gracefully if no model is loaded."""
